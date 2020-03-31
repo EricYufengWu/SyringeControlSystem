@@ -20,15 +20,18 @@
  */
  
 #include <Wire.h>
+//#include <i2c_t3.h>
 #include "Adafruit_MPRLS.h"
+//#include "MPRLS_new.h"
 
 // You dont *need* a reset and EOC pin for most uses, so we set to -1 and don't connect
 #define RESET_PIN  -1  // set to any GPIO pin # to hard-reset on begin()
 #define EOC_PIN    -1  // set to any GPIO pin to read end-of-conversion by pin
 Adafruit_MPRLS mpr = Adafruit_MPRLS(RESET_PIN, EOC_PIN);
 
+
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(38400);
   Serial.println("MPRLS Simple Test");
   if (! mpr.begin()) {
     Serial.println("Failed to communicate with MPRLS sensor, check wiring?");
@@ -36,7 +39,7 @@ void setup() {
       delay(10);
     }
   }
-  Serial.println("Found MPRLS sensor");
+  Serial.println("Found MPRLS sensor"); 
 }
 
 
