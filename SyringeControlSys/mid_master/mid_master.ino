@@ -16,19 +16,33 @@ void requestEvent(void);
 #define MEM_LEN 32
 char databuf_1[MEM_LEN];
 char databuf_2[MEM_LEN];
+
+// Constants
 int count;
 float psi = 14.77;
 volatile uint8_t received;
+uint8_t target = 0x18; // target Slave address
+#define MOTOR_PORT_A 3
+#define MOTOR_PORT_B 4
+#define BUTTON_BACK 14
+#define BUTTON_FWRD 15
+#define POT 16
 
 void setup()
 {
     pinMode(LED_BUILTIN,OUTPUT);    // LED
     digitalWrite(LED_BUILTIN,LOW);  // LED off
-
+    pinMode(MOTOR_PORT_A,OUTPUT);   // Motor PWM pins
+    pinMode(MOTOR_PORT_B,OUTPUT);   // Motor PWM pins
+    pinMode(BUTTON_BACK,INPUT);
+    pinMode(BUTTON_FWRD,INPUT);
+    //pinMode(POT,INPUT);
+    analogWrite(MOTOR_PORT_A, 0);
+    analogWrite(MOTOR_PORT_B, 0);
+    
     // Setup for Master mode, pins 18/19, external pullups, 400kHz, 200ms default timeout
     Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, 400000);
     Wire.setDefaultTimeout(200000); // 200ms
-
     
     // Data init
     memset(databuf_1, 0, sizeof(databuf_1));
@@ -46,39 +60,56 @@ void setup()
 
 void loop()
 {
-    uint8_t target = 0x18; // target Slave address
+    Serial.print(analogRead(POT));
+    Serial.print("\t");
+    write_pressure();
+//    delay(10);                       // Delay to space out tests
+    if (digitalRead(BUTTON_BACK)==HIGH || psi > 25.00){
+        analogWrite(MOTOR_PORT_A, 255);
+        analogWrite(MOTOR_PORT_B, 0);
+    } 
+    else if (digitalRead(BUTTON_FWRD)==HIGH && psi < 25.00){
+        analogWrite(MOTOR_PORT_A, 0);
+        analogWrite(MOTOR_PORT_B, 255);
+    } 
+    else {
+        analogWrite(MOTOR_PORT_A, 0);
+        analogWrite(MOTOR_PORT_B, 0);
+    }
+
+}
+
+
+
+void write_pressure(void){
  
     // Read string from Slave
     //
-    if(digitalRead(11) == LOW)
-    {
-        digitalWrite(LED_BUILTIN,HIGH);   // LED on
-        Wire.beginTransmission(target);
-        Wire.write(0xAA); // command to read pressure
-        Wire.write((byte)0x00);
-        Wire.write((byte)0x00);
-        Wire.endTransmission();
+    digitalWrite(LED_BUILTIN,HIGH);   // LED on
+    Wire.beginTransmission(target);
+    Wire.write(0xAA); // command to read pressure
+    Wire.write((byte)0x00);
+    Wire.write((byte)0x00);
+    Wire.endTransmission();
         
-        // Read from Slave
-        Wire.requestFrom(target, (uint8_t)4); // Read from Slave 
+    // Read from Slave
+    Wire.requestFrom(target, (uint8_t)4); // Read from Slave 
 
-        Wire.read(); // First byte is status indication, so for now we get rid of it from the buffer
-        
-        uint32_t ret;
-        ret = Wire.read();
-        ret <<= 8;
-        ret |= Wire.read();
-        ret <<= 8;
-        ret |= Wire.read();
-        psi = (ret - 1677722) * 25;
-        psi /= (float)(15099494 - 1677722);
-        Serial.println(psi);
+    Wire.read(); // First byte is status indication, so for now we get rid of it from the buffer
+    uint32_t ret;
+    ret = Wire.read();
+    ret <<= 8;
+    ret |= Wire.read();
+    ret <<= 8;
+    ret |= Wire.read();
+    psi = (ret - 1677722) * 25;
+    psi /= (float)(15099494 - 1677722);
+    Serial.println(psi);
 
-        digitalWrite(LED_BUILTIN,LOW);    // LED off
-        delay(10);                       // Delay to space out tests
-    }
+    digitalWrite(LED_BUILTIN,LOW);    // LED off
+
+    delay(10);
 }
-
 
 //
 // handle Rx Event (incoming I2C data) as slave
@@ -94,7 +125,6 @@ void receiveEvent(size_t count)
 //
 void requestEvent(void)
 {
-    Serial.println("received request, sending stuff..." + String(psi));
     String(psi).getBytes(databuf_2, MEM_LEN);  //converts psi to string, then copies it to the data buffer.
     Wire1.write(databuf_2, MEM_LEN);
 }
