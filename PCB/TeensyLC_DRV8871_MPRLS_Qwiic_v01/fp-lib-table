@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name footprint__library_all)(type KiCad)(uri ${KIPRJMOD}/footprint__library_all.pretty)(options "")(descr ""))
+  (lib (name teensy)(type KiCad)(uri E:/PCB!/Kicad/lib/teensy.pretty-master)(options "")(descr ""))
+)

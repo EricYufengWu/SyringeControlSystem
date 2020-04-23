@@ -27,6 +27,8 @@ uint8_t target = 0x18; // target Slave address
 #define BUTTON_BACK 14
 #define BUTTON_FWRD 15
 #define POT 16
+#define LED_TOP 9 
+#define LED_BOT 10
 
 void setup()
 {
@@ -34,8 +36,11 @@ void setup()
     digitalWrite(LED_BUILTIN,LOW);  // LED off
     pinMode(MOTOR_PORT_A,OUTPUT);   // Motor PWM pins
     pinMode(MOTOR_PORT_B,OUTPUT);   // Motor PWM pins
-    pinMode(BUTTON_BACK,INPUT);
-    pinMode(BUTTON_FWRD,INPUT);
+    pinMode(BUTTON_BACK,INPUT_PULLDOWN);
+    pinMode(BUTTON_FWRD,INPUT_PULLDOWN);
+    pinMode(LED_TOP,OUTPUT);   // Top LED (red)
+    pinMode(LED_BOT,OUTPUT);   // Bottom LED (green)
+    
     //pinMode(POT,INPUT);
     analogWrite(MOTOR_PORT_A, 0);
     analogWrite(MOTOR_PORT_B, 0);
@@ -56,6 +61,7 @@ void setup()
     Wire1.onRequest(requestEvent);
 
     Serial.begin(115200);
+      
 }
 
 void loop()
@@ -64,17 +70,27 @@ void loop()
     Serial.print("\t");
     write_pressure();
 //    delay(10);                       // Delay to space out tests
+    while (analogRead(POT)>1021 || analogRead(POT)<3){
+        if (analogRead(POT)>1022){     //1023 faces torwards the motor side
+            move_forward(50);
+        } else{
+            move_backward(50);
+        }
+    }
     if (digitalRead(BUTTON_BACK)==HIGH || psi > 25.00){
-        analogWrite(MOTOR_PORT_A, 255);
-        analogWrite(MOTOR_PORT_B, 0);
+        move_backward(255);
+        digitalWrite(LED_BOT,HIGH);
+        Serial.println("backward button pressed");
     } 
     else if (digitalRead(BUTTON_FWRD)==HIGH && psi < 25.00){
-        analogWrite(MOTOR_PORT_A, 0);
-        analogWrite(MOTOR_PORT_B, 255);
+        move_forward(255);
+        digitalWrite(LED_TOP,HIGH);
+        Serial.println("Forward button pressed");
     } 
     else {
-        analogWrite(MOTOR_PORT_A, 0);
-        analogWrite(MOTOR_PORT_B, 0);
+        stop_motor();
+        digitalWrite(LED_TOP,LOW);
+        digitalWrite(LED_BOT,LOW);
     }
 
 }
@@ -109,6 +125,20 @@ void write_pressure(void){
     digitalWrite(LED_BUILTIN,LOW);    // LED off
 
     delay(10);
+}
+
+// Motor forward/backward
+void move_forward(int pwm_duty){
+    analogWrite(MOTOR_PORT_A, 0);
+    analogWrite(MOTOR_PORT_B, 255);
+}
+void move_backward(int pwm_duty){
+    analogWrite(MOTOR_PORT_A, 255);
+    analogWrite(MOTOR_PORT_B, 0);
+}
+void stop_motor(void){
+    analogWrite(MOTOR_PORT_A, 0);
+    analogWrite(MOTOR_PORT_B, 0);
 }
 
 //
