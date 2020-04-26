@@ -6,14 +6,18 @@ This code reads pospsi_raw data which is sent from the "mid master".
 */
 
 #include <Wire.h>
-char psi_raw[32]; //initialize character array for wire.read
-char pos_raw[32];
-uint8_t ADDRESS[20];
+#define MEM_LEN 32
+char psi_raw[MEM_LEN]; //stores incomming pressure command temporarily
+char pos_raw[MEM_LEN]; //stores incomming position command temporarily
+char databuf[MEM_LEN]; //stores outgoing char array temporarily
+
+#define MAX_UNIT 20
+uint8_t ADDRESS[MAX_UNIT];
 typedef struct {
     float psi;  //
     float pos;  //
 } unit_data;
-unit_data dataset[20];
+unit_data dataset[MAX_UNIT];
 
 void setup() {
     Wire.begin();        // join i2c bus (address optional for master)
@@ -23,16 +27,17 @@ void setup() {
 
 void loop() {
     //    get_data(0);
-    get_data_all();
-    Serial.print("-Unit#0- Pressure: ");
-    Serial.print(dataset[0].psi); 
-    Serial.print(" Position: "); 
-    Serial.print(dataset[0].pos);
-    Serial.print("\t -Unit#1- Pressure: ");
-    Serial.print(dataset[0].psi); 
-    Serial.print(" Position: "); 
-    Serial.println(dataset[0].pos);
+//    get_data_all();
+//    Serial.print("-Unit#0- Pressure: ");
+//    Serial.print(dataset[0].psi); 
+//    Serial.print(" Position: "); 
+//    Serial.print(dataset[0].pos);
+//    Serial.print("\t -Unit#1- Pressure: ");
+//    Serial.print(dataset[0].psi); 
+//    Serial.print(" Position: "); 
+//    Serial.println(dataset[0].pos);
     delay(100);
+    move_to_position(ADDRESS[0],6.00);  //floating number, but intergers only (mm)
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -85,10 +90,21 @@ void get_data(int unit_num){
     return;
 }
 
-void move_to_pressure(uint8_t addr, float psi){    
+void move_to_pressure(uint8_t addr, float psi){
+    Wire.beginTransmission(addr); // transmit to device #addr
+    Wire.write("P");
+    Wire.write(char(psi));
+    //Serial.println("Move to pressure");
+    Wire.endTransmission();
 }
 
 void move_to_position(uint8_t addr, float pos){
+    Serial.println(String(pos));
+    String(pos).getBytes(databuf, MEM_LEN);
+    Wire.beginTransmission(addr); // transmit to device
+    //Wire.write("L");
+    Wire.write(databuf, MEM_LEN);
+    Wire.endTransmission();
 }
 
 void scan_address(){

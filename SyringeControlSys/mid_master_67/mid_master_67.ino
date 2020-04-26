@@ -15,8 +15,10 @@ void requestEvent(void);
 
 // Memory
 #define MEM_LEN 32
-char databuf_1[MEM_LEN];
-char databuf_2[MEM_LEN];
+char databuf_Rx[MEM_LEN];
+char databuf_Tx[MEM_LEN];
+char psi_cmd_raw[MEM_LEN]; //stores incomming float command temporarily
+char pos_cmd_raw[MEM_LEN]; //stores incomming position command temporarily
 char str[MEM_LEN];
 
 // Constants
@@ -26,7 +28,7 @@ float psi = 14.77;
 float pos = 0.00;
 volatile uint8_t received;
 uint8_t target = 0x18; // target Slave address
-uint8_t self = 0x67; //This should be different for each unit.
+uint8_t self = 0x66; //This should be different for each unit.
 boolean frwd_flag;
 boolean back_flag;
 #define MOTOR_PORT_A 3
@@ -57,7 +59,7 @@ void setup()
     Wire.setDefaultTimeout(200000); // 200ms
     
     // Data init
-    memset(databuf_1, 0, sizeof(databuf_1));
+    memset(databuf_Rx, 0, sizeof(databuf_Rx));
     count = 0;
     
     // Setup for Slave mode for data. Make sure the address is consistent at the master side!
@@ -78,11 +80,9 @@ void loop()
     pos_raw = analogRead(POT);
     pos = -0.00000000000127508008831955*pow(pos_raw, 5)+0.00000000281124191931775*pow(pos_raw, 4)-0.00000234010387463214*pow(pos_raw, 3)+0.000894194580794215*sq(pos_raw)-0.176725701121183*pos_raw + 99.6115709415247+0.37;
     pos = round(pos);
-//    dtostrf(pos,  5, 4, buffer);
-//    Serial.println(buffer);
     
-    Serial.print(pos);
-    Serial.print("\t");
+//    Serial.print(pos);
+//    Serial.print("\t");
     write_pressure();
     delay(10);                       // Delay to space out tests
     
@@ -118,10 +118,11 @@ void loop()
     }
 }
 
-
+///////////////////////////////////////////////////////////////////
+//Function Declaration. Do not change unless it's necessary
+///////////////////////////////////////////////////////////////////
 
 void write_pressure(void){
- 
     // Read string from Slave
     //
     digitalWrite(LED_BUILTIN,HIGH);   // LED on
@@ -143,10 +144,9 @@ void write_pressure(void){
     ret |= Wire.read();
     psi = (ret - 1677722) * 25;
     psi /= (float)(15099494 - 1677722);
-    Serial.println(psi);
+//    Serial.println(psi);
 
     digitalWrite(LED_BUILTIN,LOW);    // LED off
-
     delay(10);
 }
 
@@ -164,13 +164,43 @@ void stop_motor(void){
     analogWrite(MOTOR_PORT_B, 0);
 }
 
+//buffer to float conversion
+float cmd_to_string(){
+    return;
+}
+
 //
 // handle Rx Event (incoming I2C data) as slave
 //
 void receiveEvent(size_t count)
-{
-    Wire1.read(databuf_2, count);  // copy Rx data to databuf_2
-    received = count;           // set received flag to count, this triggers print in main loop
+{     
+    int i = 0;
+    while (Wire1.available()) { // slave may send less than requested
+        databuf_Rx[i] = Wire1.read();
+        i++;
+    }
+    Serial.println(String(databuf_Rx));
+
+  
+//    Wire1.read(databuf_Rx, 1);  // copy Rx data to databuf_Tx
+//    //Serial.print("received: ");
+//    //Serial.println(databuf_Rx);
+//    //Serial.println(cmd);
+//    switch (databuf_Rx[0]){
+//        case 'L' :
+//            Serial.print("move to location: ");
+//            int i = 0;
+//            while (Wire.available()) { // slave may send less than requested
+//                psi_cmd_raw[i] = Wire.read(); // receive a byte as character
+//                i++;
+//            };
+//            String pos_raw_string = String(psi_cmd_raw);
+//            Serial.println(pos_raw_string.toFloat());
+//            break;
+//        case 'P' :
+//            Serial.print("move to pressure: ");
+//            break;
+//    }
 }
 
 //
@@ -179,6 +209,6 @@ void receiveEvent(size_t count)
 void requestEvent(void)
 {
     //Serial.println(String(psi)+String(pos));
-    (String(psi)+String(pos)).getBytes(databuf_2, MEM_LEN);  //converts psi to string, then copies it to the data buffer.
-    Wire1.write(databuf_2, MEM_LEN);
+    (String(psi)+String(pos)).getBytes(databuf_Tx, MEM_LEN);  //converts psi to string, then copies it to the data buffer.
+    Wire1.write(databuf_Tx, MEM_LEN);
 }
