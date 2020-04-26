@@ -54,7 +54,7 @@ void setup()
     count = 0;
     
     // Setup for Slave mode for data. Make sure the address is consistent at the master side!
-    Wire1.begin(I2C_SLAVE, 0x66, I2C_PINS_22_23, I2C_PULLUP_EXT, 400000);
+    Wire1.begin(I2C_SLAVE, 0x67, I2C_PINS_22_23, I2C_PULLUP_EXT, 400000);
     Wire1.setDefaultTimeout(200000); // 200ms
     // register events
     Wire1.onReceive(receiveEvent);
