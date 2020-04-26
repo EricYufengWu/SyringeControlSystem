@@ -7,6 +7,7 @@ The "mid master" will also take commands from the "big master" and performs feed
 */
 
 #include <i2c_t3.h>
+#include <math.h>
 
 // Function prototypes
 void receiveEvent(size_t count);
@@ -19,7 +20,9 @@ char databuf_2[MEM_LEN];
 
 // Constants
 int count;
+int pos_raw;
 float psi = 14.77;
+float pos = 0.00;
 volatile uint8_t received;
 uint8_t target = 0x18; // target Slave address
 uint8_t self = 0x67; //This should be different for each unit.
@@ -71,28 +74,23 @@ void loop()
 {
     frwd_flag = true;
     back_flag = true;
-    Serial.print(analogRead(POT));
+    pos_raw = analogRead(POT);
+    pos = -0.00000000000127508008831955*pow(pos_raw, 5)+0.00000000281124191931775*pow(pos_raw, 4)-0.00000234010387463214*pow(pos_raw, 3)+0.000894194580794215*sq(pos_raw)-0.176725701121183*pos_raw + 99.6115709415247+0.37;
+    pos = round(pos);
+    Serial.print(pos);
     Serial.print("\t");
     write_pressure();
     delay(10);                       // Delay to space out tests
-//    while (analogRead(POT)>1021 || analogRead(POT)<3){
-//        if (analogRead(POT)>1022){     //1023 faces torwards the motor side
-//            move_forward(50);
-//        } else{
-//            move_backward(50);
-//        }
-//        digitalWrite(LED_RED,HIGH);
-//    }
     
-    if (analogRead(POT)>1021 || psi < 1.00){
+    if (pos_raw>1021 || psi < 1.00){
         back_flag = false;
         digitalWrite(LED_RED,HIGH);
     }
-    else if (analogRead(POT)<3 || psi > 25.00){
+    else if (pos_raw<3 || psi > 25.00){
         frwd_flag = false;
         digitalWrite(LED_RED,HIGH);
     }
-    else if (analogRead(POT)<1021 && analogRead(POT)>3 && psi < 25.00 && psi > 1.00){
+    else if (pos_raw<1021 && pos_raw>3 && psi < 25.00 && psi > 1.00){
         digitalWrite(LED_RED,LOW);
     }
 
