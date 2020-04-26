@@ -17,6 +17,7 @@ void requestEvent(void);
 #define MEM_LEN 32
 char databuf_1[MEM_LEN];
 char databuf_2[MEM_LEN];
+char str[MEM_LEN];
 
 // Constants
 int count;
@@ -77,6 +78,9 @@ void loop()
     pos_raw = analogRead(POT);
     pos = -0.00000000000127508008831955*pow(pos_raw, 5)+0.00000000281124191931775*pow(pos_raw, 4)-0.00000234010387463214*pow(pos_raw, 3)+0.000894194580794215*sq(pos_raw)-0.176725701121183*pos_raw + 99.6115709415247+0.37;
     pos = round(pos);
+//    dtostrf(pos,  5, 4, buffer);
+//    Serial.println(buffer);
+    
     Serial.print(pos);
     Serial.print("\t");
     write_pressure();
@@ -112,7 +116,6 @@ void loop()
         //digitalWrite(LED_RED,LOW);
         digitalWrite(LED_GRE,LOW);
     }
-
 }
 
 
@@ -175,6 +178,7 @@ void receiveEvent(size_t count)
 //
 void requestEvent(void)
 {
-    String(psi).getBytes(databuf_2, MEM_LEN);  //converts psi to string, then copies it to the data buffer.
+    //Serial.println(String(psi)+String(pos));
+    (String(psi)+String(pos)).getBytes(databuf_2, MEM_LEN);  //converts psi to string, then copies it to the data buffer.
     Wire1.write(databuf_2, MEM_LEN);
 }

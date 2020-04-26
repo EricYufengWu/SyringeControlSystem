@@ -2,13 +2,18 @@
 Adapted from Wire Master Reader by Nicholas Zambetti <http://www.zambetti.com>
 Pneumatic Syringe System Master Test
 This is the first working code (proof of concept) for the "big master" of the system, currently using an Arduino Nano.
-This code reads pressure data which is sent from the "mid master". 
+This code reads pospsi_raw data which is sent from the "mid master". 
 */
 
 #include <Wire.h>
-char data[32]; //initialize character array for wire.read
-float psi = 0.00;  //
+char psi_raw[32]; //initialize character array for wire.read
+char pos_raw[32];
 uint8_t ADDRESS[20];
+typedef struct {
+    float psi;  //
+    float pos;  //
+} unit_data;
+unit_data dataset[20];
 
 void setup() {
     Wire.begin();        // join i2c bus (address optional for master)
@@ -17,35 +22,73 @@ void setup() {
 }
 
 void loop() {
-    Serial.print("Reading from MPRLS 1: ");
-    Serial.print(get_data(ADDRESS[0]));
-    Serial.print("\tReading from MPRLS 2: ");
-    Serial.println(get_data(ADDRESS[1]));
+    //    get_data(0);
+    get_data_all();
+    Serial.print("-Unit#0- Pressure: ");
+    Serial.print(dataset[0].psi); 
+    Serial.print(" Position: "); 
+    Serial.print(dataset[0].pos);
+    Serial.print("\t -Unit#1- Pressure: ");
+    Serial.print(dataset[0].psi); 
+    Serial.print(" Position: "); 
+    Serial.println(dataset[0].pos);
     delay(100);
 }
 
 ///////////////////////////////////////////////////////////////////
-Function Declaration. Do not change unless it's necessary
+//Function Declaration. Do not change unless it's necessary
 ///////////////////////////////////////////////////////////////////
 
-float get_data(uint8_t addr){
-    Wire.requestFrom(addr, 6);    // request 6 bytes from slave device 0x66
+// Get data form all units once
+void get_data_all(){   
+    for (int j = 0; j < sizeof(ADDRESS); j++ ){
+        if (ADDRESS[j] != 0){
+            Wire.requestFrom(ADDRESS[j], 10);    // request X bytes from slave device
+
+            int i = 0;
+            while (Wire.available()) { // slave may send less than requested
+                if (i < 5){
+                    psi_raw[i] = Wire.read(); // receive a byte as character
+                } else{
+                    pos_raw[i-5] = Wire.read();
+                }
+                i++;
+            }
+            String psi_raw_string = String(psi_raw);
+            String pos_raw_string = String(pos_raw);
+            dataset[j].psi = psi_raw_string.toFloat();
+            dataset[j].pos = pos_raw_string.toFloat();
+        } else{
+            break;
+        }
+    }
+    return;    
+}
+
+// Get data from specific unit(num starts from 0)
+void get_data(int unit_num){
+    Wire.requestFrom(ADDRESS[unit_num], 10);    // request X bytes from slave device
 
     int i = 0;
     while (Wire.available()) { // slave may send less than requested
-      data[i] = Wire.read(); // receive a byte as character
-      i++;
+        if (i < 5){
+            psi_raw[i] = Wire.read(); // receive a byte as character
+        } else{
+            pos_raw[i-5] = Wire.read();
+        }
+        i++;
     }
-
-    String myString = String(data);
-    psi = myString.toFloat();
-    return psi;
+    String psi_raw_string = String(psi_raw);
+    String pos_raw_string = String(pos_raw);
+    dataset[unit_num].psi = psi_raw_string.toFloat();
+    dataset[unit_num].pos = pos_raw_string.toFloat();
+    return;
 }
 
-void move_pressure(uint8_t addr, float psi){    
+void move_to_pressure(uint8_t addr, float psi){    
 }
 
-void move_position(uint8_t addr, float pos){
+void move_to_position(uint8_t addr, float pos){
 }
 
 void scan_address(){
@@ -63,23 +106,23 @@ void scan_address(){
         // a device did acknowledge to the address.
         Wire.beginTransmission(address);
         error = Wire.endTransmission();
-  
-      if (error == 0){
-          Serial.print("Unit #");
-          Serial.print(nDevices+1);
-          Serial.print(" found at address 0x");
-          ADDRESS[nDevices] = address;
-          if (address < 16)
-              Serial.print("0");
-          Serial.println(address, HEX);
-          nDevices++;
-      }
-      else if (error == 4){
-          Serial.print("Unknown error at address 0x");
-          if (address < 16)
-              Serial.print("0");
-          Serial.println(address, HEX);
-      }
+    
+        if (error == 0){
+            Serial.print("Unit #");
+            Serial.print(nDevices);
+            Serial.print(" found at address 0x");
+            ADDRESS[nDevices] = address;
+            if (address < 16)
+                Serial.print("0");
+            Serial.println(address, HEX);
+            nDevices++;
+        }
+        else if (error == 4){
+            Serial.print("Unknown error at address 0x");
+            if (address < 16)
+                Serial.print("0");
+            Serial.println(address, HEX);
+        }
     }
     if (nDevices == 0){
         Serial.println("No I2C devices found, check connection and reboot?\n");
