@@ -13,6 +13,10 @@ The "mid master" will also take commands from the "big master" and performs feed
 void receiveEvent(size_t count);
 void requestEvent(void);
 
+//Create a timer callback
+IntervalTimer pressure_timer;
+IntervalTimer position_timer;
+
 // Memory
 #define MEM_LEN 32
 char databuf_Rx[MEM_LEN];
@@ -24,19 +28,27 @@ char str[MEM_LEN];
 // Constants
 int count;
 int pos_raw;
-float psi = 14.77;
-float kp_psi = 1;
-float ki_psi = 0;
+volatile float psi = 14.77;
+float kp_psi = 400;
+float ki_psi = 200;
 float kd_psi = 0;
-float pos = 0.00;
+float pos = 50.00;
 float kp_pos = 80;
 float ki_pos = 5;
 float kd_pos = 2;
 volatile uint8_t received;
 uint8_t target = 0x18; // target Slave address
-uint8_t self = 0x67; //This should be different for each unit.
+uint8_t self = 0x68; //This should be different for each unit.
 boolean frwd_flag;
 boolean back_flag;
+typedef struct {
+    boolean flag;  //
+    float val;  //
+} unit_cmd;
+unit_cmd pressure_cmd;
+
+
+// Pin pefinition
 #define MOTOR_PORT_A 3
 #define MOTOR_PORT_B 4
 #define BUTTON_BACK 14
@@ -55,8 +67,7 @@ void setup()
     pinMode(BUTTON_FWRD,INPUT_PULLDOWN);
     pinMode(LED_RED,OUTPUT);   // Top LED (red)
     pinMode(LED_GRE,OUTPUT);   // Bottom LED (green)
-    
-    //pinMode(POT,INPUT);
+    pinMode(POT,INPUT);
     analogWrite(MOTOR_PORT_A, 0);
     analogWrite(MOTOR_PORT_B, 0);
     
@@ -71,25 +82,40 @@ void setup()
     // Setup for Slave mode for data. Make sure the address is consistent at the master side!
     Wire1.begin(I2C_SLAVE, self, I2C_PINS_22_23, I2C_PULLUP_EXT, 400000);
     Wire1.setDefaultTimeout(200000); // 200ms
-    // register events
+    
+    // Register events
     Wire1.onReceive(receiveEvent);
     Wire1.onRequest(requestEvent);
-    Serial.begin(115200);
-      
+
+    // Begin timer
+    pressure_timer.begin(get_pressure, 50000);
+    pressure_timer.priority(255);
+//    position_timer.begin(get_pos, 50000);
+//    position_timer.priority(254);
+
+    // Turn Flags to false
+    pressure_cmd.flag = false;
+    
+    Serial.begin(115200);   
 }
 
 void loop()
 {
+    if (pressure_cmd.flag == true){
+        move_to_pressure(pressure_cmd.val);
+    }
+
     frwd_flag = true;
     back_flag = true;
+ 
+    float psi_copy;
+    noInterrupts();
+    psi_copy = psi;
+    interrupts();
     get_pos();
-    get_pressure();
-    
-    Serial.print(pos);
-    Serial.print("\t");
+//    Serial.print(pos);
+//    Serial.print("\t");
     Serial.println(psi);
-    
-    delay(10);                       // Delay to space out tests
     
     if (pos_raw>1021 || psi < 1.00){
         back_flag = false;
@@ -121,11 +147,18 @@ void loop()
         //digitalWrite(LED_RED,LOW);
         digitalWrite(LED_GRE,LOW);
     }
+
+    delay(10);                       // Delay to space out tests
 }
 
 ///////////////////////////////////////////////////////////////////
 //Function Declaration. Do not change unless it's necessary
 ///////////////////////////////////////////////////////////////////
+//void test_function(){
+//    test_val = test_val + 1.00;
+//    Serial.println(test_val);
+//}
+
 
 float get_pressure(void){
     // Read string from Slave
@@ -153,7 +186,7 @@ float get_pressure(void){
 
     digitalWrite(LED_BUILTIN,LOW);    // LED off
     delay(10);
-    return psi;
+    return;
 }
 
 void get_pos(void){
@@ -176,44 +209,54 @@ void move_motor(int pwm_duty){
 
 // "move to" functions
 void move_to_pressure(float target_psi){
+    float psi_copy;
+    noInterrupts();
+    psi_copy = psi;
+    interrupts();
+
     Serial.print("move to pressure: ");
     Serial.println(target_psi);
-    get_pressure();
-    float error = target_psi - psi;
-    Serial.println(psi);
-    Serial.print("\t");
+
+    float error = target_psi - psi_copy;
     Serial.println(error);
     float prev_error = 0;
     float sum = error;
-    float rate;;
+    float rate;
     int timeout = 0;
-    while (abs(error) >= 0.1 && timeout < 50){
-        get_pressure();
-        error = target_psi - psi;
-        Serial.println(psi);
-        Serial.print("\t");
+    get_pos();
+    while (abs(error) >= 0.1 && timeout < 140){
+        noInterrupts();
+        psi_copy = psi;
+        interrupts();
+        Serial.print(psi_copy);
+        error = target_psi - psi_copy;
         Serial.println(error);
         rate = (error-prev_error)/0.01;
         int duty = int(kp_psi * error + ki_psi * sum + kd_psi * rate);
         if (duty > 255){duty = 255;}
         else if (duty < -255){duty = -255;}
+        if ((duty > 0 && pos == 100.00)||(duty < 0 && pos == 0.00)){break;}
         move_motor(duty);
         prev_error = error;
-        delay(100);
+        timeout++;
+        get_pos();
+        delay(50);
     }
+    pressure_cmd.flag = false;
     Serial.println("Done");
     return;
 }
 void move_to_position(float target_pos){
+    noInterrupts();
     Serial.print("move to position: ");
     Serial.println(target_pos);
     get_pos();
     float error = target_pos - pos;
     float prev_error = 0;
     float sum = error;
-    float rate;;
+    float rate;
     int timeout = 0;
-    while (abs(error) >= 1.00 && timeout < 500){
+    while (abs(error) > 0.00 && timeout < 1000){
         get_pos();
         error = target_pos - pos;
         Serial.println(error);
@@ -223,6 +266,7 @@ void move_to_position(float target_pos){
         else if (duty < -255){duty = -255;}
         move_motor(duty);
         prev_error = error;
+        timeout++;
         delay(10);
     }
     Serial.println("Done");
@@ -231,7 +275,7 @@ void move_to_position(float target_pos){
 
 
 //buffer to float conversion
-float cmd_to_string(){
+float cmd_to_float(){
     int i = 0;
     while (Wire1.available()) { // slave may send less than requested
         psi_cmd_raw[i] = Wire1.read(); // receive a byte as character
@@ -250,10 +294,11 @@ void receiveEvent(size_t count)
     Wire1.read(databuf_Rx, 1);  // copy Rx data to databuf_Tx
     switch (databuf_Rx[0]){
         case 'L' :
-            move_to_position(cmd_to_string());
+            move_to_position(cmd_to_float());
             break;
         case 'P' :
-            move_to_pressure(cmd_to_string());
+            pressure_cmd.flag = true;
+            pressure_cmd.val = cmd_to_float();
             break;
     }
 }
@@ -264,6 +309,8 @@ void receiveEvent(size_t count)
 void requestEvent(void)
 {
     //Serial.println(String(psi)+String(pos));
+    Serial.println("sending request");
     (String(psi)+String(pos)).getBytes(databuf_Tx, MEM_LEN);  //converts psi to string, then copies it to the data buffer.
     Wire1.write(databuf_Tx, MEM_LEN);
+    Serial.println("sent request");
 }
