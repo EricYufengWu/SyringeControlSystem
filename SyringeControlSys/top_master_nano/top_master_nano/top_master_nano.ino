@@ -7,12 +7,16 @@ This code reads pospsi_raw data which is sent from the "mid master".
 
 #include <Wire.h>
 #define MEM_LEN 32
+#define INPUT_LEN 8
+#define MAX_UNIT 20
+
 char psi_raw[MEM_LEN]; //stores incomming pressure command temporarily
 char pos_raw[MEM_LEN]; //stores incomming position command temporarily
-char databuf[MEM_LEN]; //stores outgoing char array temporarily
-
-#define MAX_UNIT 20
+char databuf_psi[MEM_LEN]; //stores outgoing char array temporarily
+char databuf_pos[MEM_LEN];
+char input[INPUT_LEN];
 uint8_t ADDRESS[MAX_UNIT];
+
 typedef struct {
     float psi;  //
     float pos;  //
@@ -26,18 +30,60 @@ void setup() {
 }
 
 void loop() {
-    //    get_data(0);
 //    get_data_all();
 //    Serial.print("-Unit#0- Pressure: ");
 //    Serial.print(dataset[0].psi); 
 //    Serial.print(" Position: "); 
 //    Serial.print(dataset[0].pos);
 //    Serial.print("\t -Unit#1- Pressure: ");
-//    Serial.print(dataset[0].psi); 
+//    Serial.print(dataset[1].psi); 
 //    Serial.print(" Position: "); 
-//    Serial.println(dataset[0].pos);
-    delay(100);
-    move_to_position(ADDRESS[0],6.00);  //floating number, but intergers only (mm)
+//    Serial.println(dataset[1].pos);
+//    move_to_position(0,90.00);  //floating number, but intergers only (mm)
+//    move_to_pressure(1,15.00);
+//    delay(1000);
+
+// Serial Input mode for position
+// Format: "unit#-cmd-value"
+// unit#: int value starting from 0
+// cmd: G: get data; P: move to pressure; L: move to location
+    String input_target;
+    int target;
+    String input_type;
+    String input_value;
+
+    if(Serial.available()){
+        input_target = Serial.readStringUntil('-');
+        target = input_target.toInt();
+        input_type = Serial.readStringUntil('-');
+        input_value = Serial.readStringUntil('\n');
+        if (input_type == "g" || input_type == "G"){
+            get_data(target);
+            Serial.print("Unit#");
+            Serial.print(target);
+            Serial.print(" Pressure: ");
+            Serial.print(dataset[target].psi); 
+            Serial.print(" Position: "); 
+            Serial.print(dataset[target].pos);
+        } else if (input_type == "a" || input_type == "A"){
+            get_hex_address(target);
+        } else if (input_type == "l" || input_type == "L"){
+            float input_cmd = input_value.toFloat();
+            move_to_position(target,input_cmd);
+        } else if (input_type == "p" || input_type == "P"){
+            float input_cmd = input_value.toFloat();
+            move_to_pressure(target,input_cmd);
+        }
+     Serial.println("");   
+        
+//        Serial.print(target);
+//        Serial.print("\t");
+//        Serial.print(input_type);
+//        Serial.print("\t");
+//        Serial.println(input_cmd);
+//        
+    }
+    delay(10);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -90,21 +136,40 @@ void get_data(int unit_num){
     return;
 }
 
-void move_to_pressure(uint8_t addr, float psi){
-    Wire.beginTransmission(addr); // transmit to device #addr
-    Wire.write("P");
-    Wire.write(char(psi));
-    //Serial.println("Move to pressure");
-    Wire.endTransmission();
+void get_hex_address(int addr){
+    uint8_t ADD = ADDRESS[addr];
+    Serial.print("0x");
+    if (ADD < 16)
+        Serial.print("0");
+    Serial.println(ADD, HEX);
 }
 
-void move_to_position(uint8_t addr, float pos){
-    Serial.println(String(pos));
-    String(pos).getBytes(databuf, MEM_LEN);
-    Wire.beginTransmission(addr); // transmit to device
-    //Wire.write("L");
-    Wire.write(databuf, MEM_LEN);
-    Wire.endTransmission();
+void move_to_pressure(int addr, float psi){
+    if (psi >= 5.00 && psi <= 25.00){
+        Serial.print("Unit#");
+        Serial.print(addr);
+        Serial.print(" to pressure: ");
+        Serial.println(psi);
+        String(psi).getBytes(databuf_psi, MEM_LEN);
+        Wire.beginTransmission(ADDRESS[addr]); // transmit to device
+        Wire.write("P");
+        Wire.write(databuf_psi, MEM_LEN);
+        Wire.endTransmission();
+    }
+}
+
+void move_to_position(int addr, float pos){
+    if (pos >= 0.00 && pos <= 100.00){
+        Serial.print("Unit#");
+        Serial.print(addr);
+        Serial.print(" to position: ");
+        Serial.println(pos);
+        String(pos).getBytes(databuf_pos, MEM_LEN);
+        Wire.beginTransmission(ADDRESS[addr]); // transmit to device
+        Wire.write("L");
+        Wire.write(databuf_pos, MEM_LEN);
+        Wire.endTransmission();
+    }
 }
 
 void scan_address(){

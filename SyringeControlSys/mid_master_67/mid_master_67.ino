@@ -25,10 +25,16 @@ char str[MEM_LEN];
 int count;
 int pos_raw;
 float psi = 14.77;
+float kp_psi = 1;
+float ki_psi = 0;
+float kd_psi = 0;
 float pos = 0.00;
+float kp_pos = 80;
+float ki_pos = 5;
+float kd_pos = 2;
 volatile uint8_t received;
 uint8_t target = 0x18; // target Slave address
-uint8_t self = 0x66; //This should be different for each unit.
+uint8_t self = 0x67; //This should be different for each unit.
 boolean frwd_flag;
 boolean back_flag;
 #define MOTOR_PORT_A 3
@@ -68,7 +74,6 @@ void setup()
     // register events
     Wire1.onReceive(receiveEvent);
     Wire1.onRequest(requestEvent);
-
     Serial.begin(115200);
       
 }
@@ -77,13 +82,13 @@ void loop()
 {
     frwd_flag = true;
     back_flag = true;
-    pos_raw = analogRead(POT);
-    pos = -0.00000000000127508008831955*pow(pos_raw, 5)+0.00000000281124191931775*pow(pos_raw, 4)-0.00000234010387463214*pow(pos_raw, 3)+0.000894194580794215*sq(pos_raw)-0.176725701121183*pos_raw + 99.6115709415247+0.37;
-    pos = round(pos);
+    get_pos();
+    get_pressure();
     
-//    Serial.print(pos);
-//    Serial.print("\t");
-    write_pressure();
+    Serial.print(pos);
+    Serial.print("\t");
+    Serial.println(psi);
+    
     delay(10);                       // Delay to space out tests
     
     if (pos_raw>1021 || psi < 1.00){
@@ -100,19 +105,19 @@ void loop()
 
     
     if (digitalRead(BUTTON_BACK)==HIGH && back_flag){
-        move_backward(255);
+        move_motor(-255);
         digitalWrite(LED_GRE,HIGH);
         digitalWrite(LED_RED,LOW);
         //Serial.println("backward button pressed");
     } 
     else if (digitalRead(BUTTON_FWRD)==HIGH && frwd_flag){
-        move_forward(255);
+        move_motor(255);
         digitalWrite(LED_GRE,HIGH);
         digitalWrite(LED_RED,LOW);
         //Serial.println("Forward button pressed");
     } 
     else {
-        stop_motor();
+        move_motor(0);
         //digitalWrite(LED_RED,LOW);
         digitalWrite(LED_GRE,LOW);
     }
@@ -122,7 +127,7 @@ void loop()
 //Function Declaration. Do not change unless it's necessary
 ///////////////////////////////////////////////////////////////////
 
-void write_pressure(void){
+float get_pressure(void){
     // Read string from Slave
     //
     digitalWrite(LED_BUILTIN,HIGH);   // LED on
@@ -144,29 +149,96 @@ void write_pressure(void){
     ret |= Wire.read();
     psi = (ret - 1677722) * 25;
     psi /= (float)(15099494 - 1677722);
-//    Serial.println(psi);
+    //Serial.println(psi);
 
     digitalWrite(LED_BUILTIN,LOW);    // LED off
     delay(10);
+    return psi;
+}
+
+void get_pos(void){
+    pos_raw = analogRead(POT);
+    pos = -0.00000000000127508008831955*pow(pos_raw, 5)+0.00000000281124191931775*pow(pos_raw, 4)-0.00000234010387463214*pow(pos_raw, 3)+0.000894194580794215*sq(pos_raw)-0.176725701121183*pos_raw + 99.6115709415247+0.37;
+    pos = round(pos);
 }
 
 // Motor forward/backward
-void move_forward(int pwm_duty){
-    analogWrite(MOTOR_PORT_A, 0);
-    analogWrite(MOTOR_PORT_B, 255);
+void move_motor(int pwm_duty){
+    if (pwm_duty >= 0){
+        analogWrite(MOTOR_PORT_A, 0);
+        analogWrite(MOTOR_PORT_B, pwm_duty);
+    } else{
+        analogWrite(MOTOR_PORT_A, -pwm_duty);
+        analogWrite(MOTOR_PORT_B, 0);
+    }
 }
-void move_backward(int pwm_duty){
-    analogWrite(MOTOR_PORT_A, 255);
-    analogWrite(MOTOR_PORT_B, 0);
+
+
+// "move to" functions
+void move_to_pressure(float target_psi){
+    Serial.print("move to pressure: ");
+    Serial.println(target_psi);
+    get_pressure();
+    float error = target_psi - psi;
+    Serial.println(psi);
+    Serial.print("\t");
+    Serial.println(error);
+    float prev_error = 0;
+    float sum = error;
+    float rate;;
+    int timeout = 0;
+    while (abs(error) >= 0.1 && timeout < 50){
+        get_pressure();
+        error = target_psi - psi;
+        Serial.println(psi);
+        Serial.print("\t");
+        Serial.println(error);
+        rate = (error-prev_error)/0.01;
+        int duty = int(kp_psi * error + ki_psi * sum + kd_psi * rate);
+        if (duty > 255){duty = 255;}
+        else if (duty < -255){duty = -255;}
+        move_motor(duty);
+        prev_error = error;
+        delay(100);
+    }
+    Serial.println("Done");
+    return;
 }
-void stop_motor(void){
-    analogWrite(MOTOR_PORT_A, 0);
-    analogWrite(MOTOR_PORT_B, 0);
+void move_to_position(float target_pos){
+    Serial.print("move to position: ");
+    Serial.println(target_pos);
+    get_pos();
+    float error = target_pos - pos;
+    float prev_error = 0;
+    float sum = error;
+    float rate;;
+    int timeout = 0;
+    while (abs(error) >= 1.00 && timeout < 500){
+        get_pos();
+        error = target_pos - pos;
+        Serial.println(error);
+        rate = (error-prev_error)/0.01;
+        int duty = int(kp_pos * error + ki_pos * sum + kd_pos * rate);
+        if (duty > 255){duty = 255;}
+        else if (duty < -255){duty = -255;}
+        move_motor(duty);
+        prev_error = error;
+        delay(10);
+    }
+    Serial.println("Done");
+    return;
 }
+
 
 //buffer to float conversion
 float cmd_to_string(){
-    return;
+    int i = 0;
+    while (Wire1.available()) { // slave may send less than requested
+        psi_cmd_raw[i] = Wire1.read(); // receive a byte as character
+        i++;
+    };
+    String pos_raw_string = String(psi_cmd_raw);
+    return pos_raw_string.toFloat();
 }
 
 //
@@ -174,33 +246,16 @@ float cmd_to_string(){
 //
 void receiveEvent(size_t count)
 {     
-    int i = 0;
-    while (Wire1.available()) { // slave may send less than requested
-        databuf_Rx[i] = Wire1.read();
-        i++;
+    //Serial.println("RECEIVED");
+    Wire1.read(databuf_Rx, 1);  // copy Rx data to databuf_Tx
+    switch (databuf_Rx[0]){
+        case 'L' :
+            move_to_position(cmd_to_string());
+            break;
+        case 'P' :
+            move_to_pressure(cmd_to_string());
+            break;
     }
-    Serial.println(String(databuf_Rx));
-
-  
-//    Wire1.read(databuf_Rx, 1);  // copy Rx data to databuf_Tx
-//    //Serial.print("received: ");
-//    //Serial.println(databuf_Rx);
-//    //Serial.println(cmd);
-//    switch (databuf_Rx[0]){
-//        case 'L' :
-//            Serial.print("move to location: ");
-//            int i = 0;
-//            while (Wire.available()) { // slave may send less than requested
-//                psi_cmd_raw[i] = Wire.read(); // receive a byte as character
-//                i++;
-//            };
-//            String pos_raw_string = String(psi_cmd_raw);
-//            Serial.println(pos_raw_string.toFloat());
-//            break;
-//        case 'P' :
-//            Serial.print("move to pressure: ");
-//            break;
-//    }
 }
 
 //
