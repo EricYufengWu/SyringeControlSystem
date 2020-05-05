@@ -733,10 +733,10 @@
       (net 1 "Net-(D1-Pad1)"))
     (pad 2 thru_hole circle (at 2.54 0) (size 1.8 1.8) (drill 0.9) (layers *.Cu *.Mask)
       (net 2 "Net-(D1-Pad2)"))
-    (model ${KISYS3DMOD}/LED_THT.3dshapes/LED_D3.0mm.wrl
-      (at (xyz 0 0 0))
+    (model "C:/Users/86182/Desktop/Tufts/_2020 Spring/ME 0094/CAD/v03/Assemblies for KiCAD/LED_3mm_R.STEP"
+      (offset (xyz 1.27 0 13.462))
       (scale (xyz 1 1 1))
-      (rotate (xyz 0 0 0))
+      (rotate (xyz 0 180 0))
     )
   )
 
@@ -768,10 +768,10 @@
       (net 3 "Net-(D2-Pad2)"))
     (pad 1 thru_hole rect (at 0 0) (size 1.8 1.8) (drill 0.9) (layers *.Cu *.Mask)
       (net 4 "Net-(D2-Pad1)"))
-    (model ${KISYS3DMOD}/LED_THT.3dshapes/LED_D3.0mm.wrl
-      (at (xyz 0 0 0))
+    (model "C:/Users/86182/Desktop/Tufts/_2020 Spring/ME 0094/CAD/v03/Assemblies for KiCAD/LED_3mm_G.STEP"
+      (offset (xyz 1.27 0 13.462))
       (scale (xyz 1 1 1))
-      (rotate (xyz 0 0 0))
+      (rotate (xyz 0 180 0))
     )
   )
 
@@ -870,8 +870,8 @@
   (segment (start 31.75 39.37) (end 31.75 38.23863) (width 0.25) (layer F.Cu) (net 1))
   (segment (start 35.089999 32.930002) (end 34.29 33.730001) (width 0.25) (layer F.Cu) (net 2))
   (segment (start 35.089999 9.781997) (end 35.089999 32.930002) (width 0.25) (layer F.Cu) (net 2))
-  (segment (start 29.845 0.635) (end 29.845 4.536998) (width 0.25) (layer F.Cu) (net 2))
   (segment (start 29.845 4.536998) (end 35.089999 9.781997) (width 0.25) (layer F.Cu) (net 2))
+  (segment (start 29.845 0.635) (end 29.845 4.536998) (width 0.25) (layer F.Cu) (net 2))
   (segment (start 34.639989 30.840012) (end 31.75 33.730001) (width 0.25) (layer F.Cu) (net 3))
   (segment (start 34.639989 10.128989) (end 34.639989 30.840012) (width 0.25) (layer F.Cu) (net 3))
   (segment (start 31.966001 7.455001) (end 34.639989 10.128989) (width 0.25) (layer F.Cu) (net 3))
@@ -1016,7 +1016,7 @@
   (segment (start 48.819999 35.56) (end 52.83341 35.56) (width 0.25) (layer F.Cu) (net 34))
   (segment (start 46.99 33.730001) (end 48.819999 35.56) (width 0.25) (layer F.Cu) (net 34))
 
-  (zone (net 5) (net_name GND) (layer F.Cu) (tstamp 0) (hatch edge 0.508)
+  (zone (net 5) (net_name GND) (layer F.Cu) (tstamp 5EB09B85) (hatch edge 0.508)
     (connect_pads (clearance 0.254))
     (min_thickness 0.254)
     (fill yes (arc_segments 32) (thermal_gap 0.508) (thermal_bridge_width 0.508))
@@ -1449,7 +1449,7 @@
       )
     )
   )
-  (zone (net 5) (net_name GND) (layer B.Cu) (tstamp 0) (hatch edge 0.508)
+  (zone (net 5) (net_name GND) (layer B.Cu) (tstamp 5EB09B82) (hatch edge 0.508)
     (connect_pads (clearance 0.254))
     (min_thickness 0.254)
     (fill yes (arc_segments 32) (thermal_gap 0.508) (thermal_bridge_width 0.508))
