@@ -13,10 +13,12 @@ Questions? Email yufeng.wu@tufts.edu and I will try to get back to you ASAP. I w
 Note: This README is still under construction! I just wrapped up my spring semester and will try to have the complete building instruction ready in the next two weeks. 
 
 ## Images & Demos
-![Rendering 01](https://github.com/EricYufengWu/PneumaticSyringeSystem/blob/master/Documentation/05_04_20_Render01.JPG)
-![Rendering 02](https://github.com/EricYufengWu/PneumaticSyringeSystem/blob/master/Documentation/05_04_20_Render01.JPG)
-![Working Demo](https://github.com/EricYufengWu/PneumaticSyringeSystem/blob/master/Documentation/ver 3 assembly 01.jpeg)
 
+Check out my presentation video on Youtube: https://youtu.be/lQ8lNfzFreA
+
+![Rendering 01](https://github.com/EricYufengWu/PneumaticSyringeSystem/blob/master/Documentation/05_04_20_Render02.JPG)
+![Rendering 02](https://github.com/EricYufengWu/PneumaticSyringeSystem/blob/master/Documentation/05_04_20_Render01.JPG)
+![Working Demo](https://github.com/EricYufengWu/PneumaticSyringeSystem/blob/master/Documentation/v3_2_units.jpeg)
 
 ## Building Instructions
 
@@ -29,5 +31,6 @@ Note: This README is still under construction! I just wrapped up my spring semes
 ### 4. Assembly Instructions
 
 ### 5. The Code
+Please see "Arduino_TeensyLC" for some simple demo code I wrote for the system.
 
 ### 6. Further Developments
