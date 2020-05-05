@@ -4,7 +4,7 @@
 
 This repository hosts code, PCB designs, and other results from my undergraduate independent research course. This research is supervised by Professor Chris Rogers at Tufts University.
 
-The goal of the research is to develop a low-cost, modular pneumatic system that controls soft actuators using a linear actuator and a medical syringe. If time allows, I will also try to perform a well-rounded comparison between my new system and traditional controlling methods like [this one](https://softroboticstoolkit.com/book/control-board)
+The goal of the research is to develop a low-cost, modular pneumatic system that controls soft actuators using a linear actuator and a medical syringe. If time allows, I will also try to perform a well-rounded comparison between my new system and traditional controlling methods like [this one.](https://softroboticstoolkit.com/book/control-board)
 
 Scroll down for pictures, demos, and complete building instructions.
 
