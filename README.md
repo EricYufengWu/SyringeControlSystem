@@ -1,19 +1,22 @@
-# Pneumatic Syringe System
+# Linear Syringe System for Controlling Soft Robot Actuators
 
 ## General Info
 
-Undergraduate Independent Research Supervised by Professor Chris Rogers
+This repository hosts code, PCB designs, and other results from my undergraduate independent research course. This research is supervised by Professor Chris Rogers at Tufts University.
 
-Goal: to develop a low-cost, modular pneumatic system that controls soft actuators using a linear actuator and a medical syringe. Perform comparison between the existing control methods and the newly-developed system.
+The goal of the research is to develop a low-cost, modular pneumatic system that controls soft actuators using a linear actuator and a medical syringe. If time allows, I will also try to perform a well-rounded comparison between my new system and traditional controlling methods like [this one](https://softroboticstoolkit.com/book/control-board)
 
-Scroll down for complete building instructions
+Scroll down for pictures, demos, and complete building instructions.
 
-Questions? Email yufeng.wu@tufts.edu and I will try to get back to you ASAP!
+Questions? Email yufeng.wu@tufts.edu and I will try to get back to you ASAP. I would also love to hear feedback or suggestions on how I can improve the current system.
 
-This is a test image:
-![Image of Casting](https://github.com/EricYufengWu/PneumaticSyringeSystem/blob/master/Documentation/Casting.jpeg)
+Note: This README is still under construction! I just wrapped up my spring semester and will try to have the complete building instruction ready in the next two weeks. 
 
 ## Images & Demos
+![Rendering 01](https://github.com/EricYufengWu/PneumaticSyringeSystem/blob/master/Documentation/05_04_20_Render01.JPG)
+![Rendering 02](https://github.com/EricYufengWu/PneumaticSyringeSystem/blob/master/Documentation/05_04_20_Render01.JPG)
+![Working Demo](https://github.com/EricYufengWu/PneumaticSyringeSystem/blob/master/Documentation/05_04_20_Render01.JPG)
+
 
 ## Building Instructions
 
