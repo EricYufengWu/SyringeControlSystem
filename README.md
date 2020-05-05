@@ -15,7 +15,7 @@ Note: This README is still under construction! I just wrapped up my spring semes
 ## Images & Demos
 ![Rendering 01](https://github.com/EricYufengWu/PneumaticSyringeSystem/blob/master/Documentation/05_04_20_Render01.JPG)
 ![Rendering 02](https://github.com/EricYufengWu/PneumaticSyringeSystem/blob/master/Documentation/05_04_20_Render01.JPG)
-![Working Demo](https://github.com/EricYufengWu/PneumaticSyringeSystem/blob/master/Documentation/05_04_20_Render01.JPG)
+![Working Demo](https://github.com/EricYufengWu/PneumaticSyringeSystem/blob/master/Documentation/ver 3 assembly 01.jpeg)
 
 
 ## Building Instructions
