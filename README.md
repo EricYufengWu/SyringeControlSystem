@@ -22,7 +22,10 @@ Check out my presentation video on Youtube: https://youtu.be/lQ8lNfzFreA
 
 ## Building Instructions
 
-### 1. Bill of Materials
+### 1. BOM & Links
+Click [here](https://docs.google.com/spreadsheets/d/1QlE3OmNmio2WvQ-pDKSaTucrADuNShoU5-5D75yimro/edit?usp=sharing) for the complete bill of materials.
+Click [here](https://grabcad.com/) for the 3D-printed components in STL, STEP, and SolidWorks format.
+You can also view the 3D-model online through [here]()
 
 ### 2. 3D-Printing the Parts
 
