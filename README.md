@@ -40,4 +40,9 @@ Get the latest Gerber package and original KiCAD files (with custom libraries) u
 ### 5. The Code
 Please see "Arduino_TeensyLC" for some simple demo code I wrote for the system.
 
-### 6. Further Developments
+BEFORE YOU PROCEED: Please read the next section about the limitations of the current system as well as things to keep in mind during its operation. 
+
+Keep in mind that although the system is considered safe to operate, the stability of the system has not been so thoroughly tested. This mostly means that certain components might accidentally malfunction or get heated up. 
+
+### 6. Limitations and Precautions
+Although I2C protocol is capable of connecting more than 100 slaves at once, for the current version, it is recommended that you do not connect more than 8 units to the same master unit at the same time. This is due to the current rating of the wires used in the design. Future development will focus on how to tackle this issue.
