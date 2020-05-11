@@ -27,7 +27,9 @@ Click [here](https://docs.google.com/spreadsheets/d/1QlE3OmNmio2WvQ-pDKSaTucrADu
 
 Click [here](https://grabcad.com/) for the 3D-printed components in STL, STEP, and SolidWorks format.
 
-You can also view the 3D-model online through [here]()
+You can also view the 3D-model online through [here](https://autode.sk/2SUinZA)
+
+Get the latest Gerber package and original KiCAD files (with custom libraries) under the "PCB" folder.
 
 ### 2. 3D-Printing the Parts
 
