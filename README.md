@@ -1,5 +1,7 @@
 # Linear Syringe System for Controlling Soft Robot Actuators
 
+![Demo](https://github.com/EricYufengWu/PneumaticSyringeSystem/blob/master/Documentation/Demo.gif)
+
 ## General Info
 
 This repository hosts code, PCB designs, and other results from my undergraduate independent research course. This research is supervised by Professor Chris Rogers at Tufts University.
