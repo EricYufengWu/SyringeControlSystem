@@ -39,6 +39,8 @@ Get the latest Gerber package and original KiCAD files (with custom libraries) u
 
 ### 4. Assembly Instructions
 
+A PDF Assembly instruction can be found [here](https://github.com/EricYufengWu/PneumaticSyringeSystem/blob/master/Documentation/Assembly.pdf) 
+
 ### 5. The Code
 Please see "Arduino_TeensyLC" for some simple demo code I wrote for the system.
 
