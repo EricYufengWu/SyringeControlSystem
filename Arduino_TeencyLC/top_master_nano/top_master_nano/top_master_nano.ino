@@ -30,23 +30,7 @@ void setup() {
 }
 
 void loop() {
-//    get_data_all();
-//    Serial.print("-Unit#0- Pressure: ");
-//    Serial.print(dataset[0].psi); 
-//    Serial.print(" Position: "); 
-//    Serial.print(dataset[0].pos);
-//    Serial.print("\t -Unit#1- Pressure: ");
-//    Serial.print(dataset[1].psi); 
-//    Serial.print(" Position: "); 
-//    Serial.println(dataset[1].pos);
-//    move_to_position(0,90.00);  //floating number, but intergers only (mm)
-//    move_to_pressure(1,15.00);
-//    delay(1000);
 
-// Serial Input mode for position
-// Format: "unit#-cmd-value"
-// unit#: int value starting from 0
-// cmd: G: get data; P: move to pressure; L: move to location
     String input_target;
     int target;
     String input_type;
@@ -75,13 +59,6 @@ void loop() {
             move_to_pressure(target,input_cmd);
         }
      Serial.println("");   
-        
-//        Serial.print(target);
-//        Serial.print("\t");
-//        Serial.print(input_type);
-//        Serial.print("\t");
-//        Serial.println(input_cmd);
-//        
     }
     delay(10);
 }
