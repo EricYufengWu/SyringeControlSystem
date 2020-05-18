@@ -1,4 +1,4 @@
-# Linear Syringe System for Controlling Soft Robot Actuators
+# Syringe Control System for Controlling Soft Robot Actuators
 
 ![Demo](https://github.com/EricYufengWu/PneumaticSyringeSystem/blob/master/Documentation/Demo.gif)
 
@@ -6,7 +6,7 @@
 
 This repository hosts code, PCB designs, and other results from my undergraduate independent research course. This research is supervised by Professor Chris Rogers at Tufts University.
 
-The goal of the research is to develop a low-cost, modular pneumatic system that controls soft actuators using a linear actuator and a medical syringe. If time allows, I will also try to perform a well-rounded comparison between my new system and traditional controlling methods like [this one.](https://softroboticstoolkit.com/book/control-board). For now, the system is named "Linear Syringe System", or LSS in short.
+The goal of the research is to develop a low-cost, modular pneumatic system that controls soft actuators using a linear actuator and a medical syringe. If time allows, I will also try to perform a well-rounded comparison between my new system and traditional controlling methods like [this one.](https://softroboticstoolkit.com/book/control-board). For now, the system is named "Syringe Control System", or SCS in short.
 
 I would like to thank Professor Chris Rogers, Professor Brandon Stafford, and many other people from [Tufts Center for Engineering Education and Outreach](https://ceeo.tufts.edu/) and [Tufts Nolop FAST Facility](https://nolop.org/) for making this project possible.
 
@@ -26,7 +26,7 @@ Check out my presentation video on Youtube: https://youtu.be/lQ8lNfzFreA
 
 Click [here](https://docs.google.com/spreadsheets/d/1QlE3OmNmio2WvQ-pDKSaTucrADuNShoU5-5D75yimro/edit?usp=sharing) for the complete bill of materials.
 
-Click [here](https://grabcad.com/) for the 3D-printed components in STL, STEP, and SolidWorks format.
+Click [here](https://grabcad.com/library/linear-syringe-system-for-controlling-soft-robot-actuators-1/details?folder_id=8379164) for the 3D-printed components in STL, STEP, and SolidWorks format.
 
 You can also view the 3D-model online through [here](https://autode.sk/2SUinZA)
 
@@ -34,7 +34,7 @@ Get the latest Gerber package and original KiCAD files (with custom libraries) u
 
 ## Building Instructions
 
-A full manual, including instructions on BOM, 3D-printing, ordering PCB, mechanical assembly, coding, and operation, can be found [here](https://github.com/EricYufengWu/PneumaticSyringeSystem/blob/master/Documentation/LSS_Manual_v3.1.pdf) in PDF. 
+A full manual, including instructions on BOM, 3D-printing, ordering PCB, mechanical assembly, coding, and operation, can be found [here](https://github.com/EricYufengWu/PneumaticSyringeSystem/blob/master/Documentation/SCS_Manual_v3.1.pdf) in PDF. 
 
 ## Using The Code
 
@@ -50,12 +50,12 @@ Upload "top_master_nano.ino" to your arduino Nano as the master unit. You can us
 
 For more detailed instruciton, please refer to the instruction manual.
 
-BEFORE YOU PROCEED: Please read the next section about the limitations of the LSS as well as things to keep in mind during its operation. 
+BEFORE YOU PROCEED: Please read the next section about the limitations of the SCS as well as things to keep in mind during its operation. 
 
 
 ## Limitations and Precautions
 I2C protocol is capable of connecting more than 100 slaves at once. However, for the current version, it is recommended that you do not connect more than 8 units to the same master unit at the same time. This is due to the current rating of the wires used in the design. Future development will focus on how to tackle this issue.
 
-Although the system uses Sparkfun's Qwiic system to communicaate with the units via I2C, it is currently NOT compatible with other boards on the Qwiic system: The LSS uses 5V on its logic line to power the Teensy LC, whereas the real Qwiic system uses 3.3V to power the sensors. Connecting other 3.3V sensors to the LSS system could permanently damage your sensors!
+Although the system uses Sparkfun's Qwiic system to communicaate with the units via I2C, it is currently NOT compatible with other boards on the Qwiic system: The SCS uses 5V on its logic line to power the Teensy LC, whereas the real Qwiic system uses 3.3V to power the sensors. Connecting other 3.3V sensors to the SCS system could permanently damage your sensors!
 
 Keep in mind that although the system proves to be safe to operate, the stability of the system has not been so thoroughly tested. This mostly means that certain components might accidentally malfunction or get heated up. 
