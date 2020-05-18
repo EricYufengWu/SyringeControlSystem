@@ -1,4 +1,4 @@
-# Syringe Control System for Controlling Soft Robot Actuators
+# Syringe Control System for Soft Robot Actuators
 
 ![Demo](https://github.com/EricYufengWu/PneumaticSyringeSystem/blob/master/Documentation/Demo.gif)
 
