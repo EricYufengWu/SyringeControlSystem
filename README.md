@@ -8,7 +8,7 @@ This repository hosts code, PCB designs, and other results from my undergraduate
 
 The goal of the research is to develop a low-cost, modular pneumatic system that controls soft actuators using a linear actuator and a medical syringe. If time allows, I will also try to perform a well-rounded comparison between my new system and traditional controlling methods like [this one.](https://softroboticstoolkit.com/book/control-board). For now, the system is named "Syringe Control System", or SCS in short.
 
-I would like to thank Professor Chris Rogers, Professor Brandon Stafford, and many other people from [Tufts Center for Engineering Education and Outreach](https://ceeo.tufts.edu/) and [Tufts Nolop FAST Facility](https://nolop.org/) for making this project possible.
+I would like to thank Professor Chris Rogers, Part-time Lecturer Brandon Stafford, and many other people from [Tufts Center for Engineering Education and Outreach](https://ceeo.tufts.edu/) and [Tufts Nolop FAST Facility](https://nolop.org/) for making this project possible.
 
 Scroll down for pictures, demos, and complete building instructions.
 
